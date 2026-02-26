@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  dev:
+    image: ubuntu:22.04
+    container_name: ubuntu-dev-runner
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+
+    # only mount docker socket if you need docker inside container
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+
+    entrypoint: >
+      bash -c "
+        apt-get update &&
+        apt-get install -y git make docker.io &&
+        # clone SecureDrop into workspace if not already there
+        if [ ! -d /workspace/securedrop ]; then
+          git clone https://github.com/freedomofpress/securedrop.git /workspace/securedrop
+        fi &&
+        echo 'Container ready. Run: cd /workspace/securedrop && make dev' &&
+        bash
+      "
