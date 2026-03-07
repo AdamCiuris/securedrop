@@ -12,6 +12,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+    ports:
+      - "64000:8080"
+      - "64001:8081"
     environment:
       - DEBIAN_FRONTEND=noninteractive
 
@@ -26,3 +29,21 @@ services:
         echo 'Container ready. Run: cd /workspace/securedrop && make dev' &&
         bash
       "
+
+    networks:
+      - mynet
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    depends_on:
+      - webui
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CF_TOKEN} # securedrop-dev-0
+    networks:
+      - mynet
+# run this and then attach the containers to it so we can test serve
+networks:
+  mynet:
