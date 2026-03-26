@@ -7,9 +7,11 @@ services:
     working_dir: /workspace
     stdin_open: true
     tty: true
+
     # only mount docker socket if you need docker inside container
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
     ports:
       - "64000:8080"
       - "64001:8081"
@@ -27,8 +29,22 @@ services:
         echo 'Container ready. Run: cd /workspace/securedrop && make dev' &&
         bash
       "
+
     networks:
       - mynet
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    depends_on:
+      - nginx-not-tor
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CF_TOKEN} # securedrop-dev-0
+    networks:
+      - mynet
+
   tor:
     build:
       context: ./tor
@@ -68,21 +84,12 @@ services:
       envsubst '$$ONION_ADDRESS' < /usr/share/nginx/html/index.html > /usr/share/nginx/html/index.final.html &&
       nginx -g 'daemon off;'
       "
-# mv /usr/share/nginx/html/index.final.html /usr/share/nginx/html/index.html &&
-# needs $$ to stop docker expanding env var
-volumes:
-  tor_data:
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared
-    restart: unless-stopped
-    depends_on:
-      - webui
-    command: tunnel --no-autoupdate run
-    environment:
-      - TUNNEL_TOKEN=${CF_TOKEN} # securedrop-dev-0
     networks:
       - mynet
+
+      
+volumes:
+  tor_data:
 # run this and then attach the containers to it so we can test serve
 networks:
   mynet:
