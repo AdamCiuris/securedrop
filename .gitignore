@@ -1,4 +1,5 @@
 .git
 .git/*
 .env
+dev-shell
 public/index.final.html
