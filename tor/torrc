@@ -6,4 +6,4 @@ HiddenServiceDir /var/lib/tor/hidden_service/
 HiddenServiceVersion 3
 
 # Forward onion traffic to nginx service
-HiddenServicePort 80 nginx-tor:80
+HiddenServicePort 80 securedrop-dev-0:8080
