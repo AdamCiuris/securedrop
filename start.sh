@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# IMPORTANT: RUN INSIDE WSL OR LINUX 
+# MUST BE UNMOUNTED DIR
+# OTHERWISE ISSUES
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/securedrop"
 
@@ -20,8 +23,8 @@ done
 cd "$SCRIPT_DIR"
 
 
-
-TARGET_NETWORK="mydrop_mynet"
+ # i think this is just parentdir_projectnetwork
+TARGET_NETWORK="securedrop_mynet"
 nohup stdbuf -oL -eL docker compose up 2>&1 | tee -a ./make-dev-compose.log  >/dev/null &
 while true; do
     if docker network list --format '{{.Name}}' | grep -q "^${TARGET_NETWORK}$"; then
